@@ -40,24 +40,58 @@ const modernEnvironment = new Environment({
   store: new Store(new RecordSource()),
 });
 
-ReactDOM.render(
-  <QueryRenderer
-    environment={modernEnvironment}
-    query={graphql`
-      query appQuery {
-        viewer {
-          ...TodoApp_viewer
-        }
-      }
-    `}
-    variables={{}}
-    render={({error, props}) => {
-      if (props) {
-        return <TodoApp viewer={props.viewer} />;
-      } else {
-        return <div>Loading</div>;
-      }
-    }}
-  />,
-  document.getElementById('root'),
-);
+class App extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      copies: 2,
+    };
+  }
+  render() {
+    return (
+      <div>
+        <button onClick={() => this.setState({copies: 1})}>Delete entry</button>
+        <QueryRenderer
+          environment={modernEnvironment}
+          query={graphql`
+            query appQuery {
+              viewer {
+                ...TodoApp_viewer
+              }
+            }
+          `}
+          variables={{}}
+          render={({error, props}) => {
+            if (props) {
+              return <TodoApp viewer={props.viewer} />;
+            } else {
+              return <div>Loading</div>;
+            }
+          }}
+        />
+        {this.state.copies == 2 ? (
+          <QueryRenderer
+            environment={modernEnvironment}
+            query={graphql`
+              query appQuery {
+                viewer {
+                  ...TodoApp_viewer
+                }
+              }
+            `}
+            variables={{}}
+            render={({error, props}) => {
+              if (props) {
+                return <TodoApp viewer={props.viewer} />;
+              } else {
+                return <div>Loading</div>;
+              }
+            }}
+          />
+        ) : null}
+      </div>
+    );
+  }
+}
+
+ReactDOM.render(<App />, document.getElementById('root'));
